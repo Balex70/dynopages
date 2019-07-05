@@ -1,0 +1,13 @@
+1.0.1: 'First version of DynoPages'
+1.0.2:
+    - 'Created table rd_dynopages_pages'
+    - builder_table_create_rd_dynopages_pages.php
+1.0.3:
+    - 'Created table rd_dynopages_static_pages'
+    - builder_table_create_rd_dynopages_static_pages.php
+1.0.4:
+    - 'Created table rd_dynopages_static_pages_conf'
+    - builder_table_create_rd_dynopages_static_pages_conf.php
+1.0.5:
+    - 'Created table rd_dynopages_static_menu'
+    - builder_table_create_rd_dynopages_static_menu.php

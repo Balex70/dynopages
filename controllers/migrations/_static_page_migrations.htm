@@ -1,0 +1,35 @@
+<?php if (count($dbStaticPages) > 0): ?>
+    <p class="flash-message static error">
+        <?= Lang::get('rd.dynopages::lang.migrations.db_static_pages_exists') ?>
+    </p>
+<?php elseif(count($staticPagesTree) == 0): ?>
+    <p class="flash-message static error">
+        <?= Lang::get('rd.dynopages::lang.migrations.static_pages_not_exists') ?>
+    </p>
+<?php else: ?>
+    <div id="staticMigrateStatus">
+        <a href=""
+            role="button"
+            class="btn btn-primary btn-lg"
+            data-request="onPerformStaticPageMigrate"
+            data-load-indicator="<?= e(trans('backend::lang.form.saving')) ?>"
+            data-request-flash>
+            <?= Lang::get('rd.dynopages::lang.migrations.static_content_migrate') ?>
+        </a>
+    </div>
+    <h2><?= Lang::get('rd.dynopages::lang.migrations.static_pages_for_migrations') ?></h2>
+<?php endif ?>
+<div class="migrations">
+    <ul class="tree">
+        <?php foreach ($staticPagesTree as $pageObj): ?>
+            <li>
+                <?= e($pageObj->page->getViewBag()->property('title')) ?> <span class="url-span">(URL: <?= e($pageObj->page->getViewBag()->property('url')) ?>) </span>
+                <ul>
+                    <?php if ($subpages = $pageObj->subpages): ?>
+                        <?= $this->makePartial('render_tree', ['staticPagesTree' => $subpages]) ?>
+                    <?php endif ?>
+                </ul>
+            </li>
+        <?php endforeach ?>
+    </ul>
+</div>

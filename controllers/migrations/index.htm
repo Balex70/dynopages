@@ -1,0 +1,81 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('system/settings') ?>"><?= e(trans('system::lang.settings.menu_label')) ?></a></li>
+        <li><?= Lang::get('rd.dynopages::lang.migrations.breadcrumb_label') ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<div class="control-tabs content-tabs" data-control="tab">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#"><?= Lang::get('rd.dynopages::lang.migrations.cms_page_tab') ?></a></li>
+            <li><a href="#"><?= Lang::get('rd.dynopages::lang.migrations.static_page_tab') ?></a></li>
+            <li><a href="#"><?= Lang::get('rd.dynopages::lang.migrations.static_menu_tab') ?></a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active">
+                <div class="callout fade in callout-info no-subheader">
+                    <div class="header">
+                        <i class="icon-info"></i>
+                        <h3><?= Lang::get('rd.dynopages::lang.migrations.page_hint') ?></h3>
+                    </div>
+                </div>
+                <div class="callout fade in callout-warning no-subheader">
+                    <div class="header">
+                        <i class="icon-warning"></i>
+                        <h3><?= Lang::get('rd.dynopages::lang.migrations.page_warning') ?></h3>
+                    </div>
+                </div>
+                <div id="migrationsContainer">
+                    <?= $this->makePartial('page_migrations') ?>
+                </div>
+            </div>
+            <div class="tab-pane">
+                <?php if ($rainLabPagePluginExists): ?>
+                    <div class="callout fade in callout-info no-subheader">
+                        <div class="header">
+                            <i class="icon-info"></i>
+                            <h3><?= Lang::get('rd.dynopages::lang.migrations.static_page_hint') ?></h3>
+                        </div>
+                    </div>
+                    <div class="callout fade in callout-warning  no-subheader">
+                        <div class="header">
+                            <i class="icon-warning"></i>
+                            <h3><?= Lang::get('rd.dynopages::lang.migrations.static_page_warning') ?></h3>
+                        </div>
+                    </div>
+                    <div id="migrationsContainer">
+                        <?= $this->makePartial('static_page_migrations') ?>
+                    </div>
+                <?php else: ?>
+                    <p class="flash-message static error">
+                        <?= Lang::get('rd.dynopages::lang.migrations.rainlab_pages_not_exists') ?>
+                    </p>
+                <?php endif ?>
+            </div>
+            <div class="tab-pane">
+                <?php if ($rainLabPagePluginExists): ?>
+                    <div class="callout fade in callout-info no-subheader">
+                        <div class="header">
+                            <i class="icon-info"></i>
+                            <h3><?= Lang::get('rd.dynopages::lang.migrations.static_menu_hint') ?></h3>
+                        </div>
+                    </div>
+                    <div class="callout fade in callout-warning  no-subheader">
+                        <div class="header">
+                            <i class="icon-warning"></i>
+                            <h3><?= Lang::get('rd.dynopages::lang.migrations.static_menu_warning') ?></h3>
+                        </div>
+                    </div>
+                    <div id="migrationsContainer">
+                        <?= $this->makePartial('static_menu_migrations') ?>
+                    </div>
+                <?php else: ?>
+                    <p class="flash-message static error">
+                        <?= Lang::get('rd.dynopages::lang.migrations.rainlab_pages_not_exists') ?>
+                    </p>
+                <?php endif ?>
+            </div>
+        </div>
+    </div>
+
+

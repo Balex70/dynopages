@@ -1,0 +1,16 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    use_dynopages:
+        label: rd.dynopages::lang.settings.use_dynopages.label
+        type: switch
+
+    show_native_cms:
+        label: rd.dynopages::lang.settings.show_native_cms.label
+        type: switch
+    
+    show_native_static_pages:
+        label: rd.dynopages::lang.settings.show_native_static_pages.label
+        type: switch

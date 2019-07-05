@@ -1,0 +1,10 @@
+<?php foreach ($staticPagesTree as $pageObj): ?>
+    <li>
+        <?= e($pageObj->page->getViewBag()->property('title')) ?> <span class="url-span">(URL: <?= e($pageObj->page->getViewBag()->property('url')) ?>) </span>
+        <ul>
+            <?php if ($subpages = $pageObj->subpages): ?>
+                <?= $this->makePartial('render_tree', ['staticPagesTree' => $subpages]) ?>
+            <?php endif ?>
+        </ul>
+    </li>
+<?php endforeach ?>

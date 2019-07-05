@@ -1,0 +1,64 @@
+<?php if (count($pages) > 0 && count($dbPages) > 0 && count($pages) == count($dbPages)): ?>
+    <p class="flash-message static success">
+        <?= Lang::get('rd.dynopages::lang.migrations.all_pages_migrated') ?>
+    </p>
+<?php elseif (count($pages) > 0): ?>
+    <div id="migrateStatusBulk">
+        <a href=""
+            role="button"
+            class="btn btn-primary btn-lg"
+            data-request="onPerformPageBulkMigrate"
+            data-load-indicator="<?= e(trans('backend::lang.form.saving')) ?>"
+            data-request-flash>
+            <?= Lang::get('rd.dynopages::lang.migrations.migrate_all_pages') ?>
+        </a>
+    </div>
+<?php else: ?>
+    <p class="flash-message static error">
+        <?= Lang::get('rd.dynopages::lang.migrations.pages_not_exists') ?>
+    </p>
+<?php endif ?>
+<div class="control-list">
+    <table class="table data">
+        <thead>
+            <tr>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.file_name') ?></span></th>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.title') ?> (<?= Lang::get('rd.dynopages::lang.migrations.language') ?>: <?= $defaultLocale ?>)</span></th>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.url') ?> (<?= Lang::get('rd.dynopages::lang.migrations.language') ?>: <?= $defaultLocale ?>)</span></th>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.action_status') ?></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $k = 0; ?>
+            <?php foreach ($pages as $page): ?>
+                <tr>
+                    <td><?= $page->fileName ?></td>
+                    <td><?= $page->title ?></td>
+                    <td><?= $page->url ?></td>
+                    <td>
+                        <?php if (count($dbPages) > 0 and array_key_exists($page->fileName, $dbPages)): ?>
+                            <span class="list-badge badge-success">
+                                <i class="icon-info"></i>
+                            </span>
+                            <?= Lang::get('rd.dynopages::lang.migrations.page_exists') ?>
+                        <?php else: ?>
+                            <div id="migrateStatus<?= $k ?>">
+                                <a href=""
+                                    role="button"
+                                    class="btn btn-primary btn-sm"
+                                    data-request="onPerformPageMigrate"
+                                    data-load-indicator="<?= e(trans('backend::lang.form.saving')) ?>"
+                                    data-request-data="recordId: <?= $k ?>, recordFilename: '<?= $page->fileName ?>'"
+                                    data-request-flash>
+                                    <?= Lang::get('rd.dynopages::lang.migrations.migrate') ?>
+                                </a>
+                            </div>
+                        <?php endif ?>
+                        
+                    </td>
+                </tr>
+                <?php $k++; ?>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+</div>

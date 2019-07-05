@@ -1,0 +1,20 @@
+{
+    "name": "rd/dynopages",
+    "type": "october-plugin",
+    "description": "Raccoon Depot plugin that makes it possible to save content in DB",
+    "homepage": "https://www.raccoondepot.com",
+    "keywords": ["octobercms", "dynopages", "database", "Raccoon Depot"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Bachynskyi",
+            "email": "depot@raccoondepot.com",
+            "role": "Author"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "composer/installers": "~1.0"
+    },
+    "minimum-stability": "dev"
+}

@@ -1,0 +1,40 @@
+<div class="migrations">
+    <table class="table data">
+        <thead>
+            <tr>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.menu_code') ?></span></th>
+                <th><span><?= Lang::get('rd.dynopages::lang.migrations.action_status') ?></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $k = 0; ?>
+            <?php foreach ($staticMenus as $menuObj): ?>
+                <tr>
+                    <td><?= $menuObj->code ?></td>
+                    <td>
+                        <?php if (count($dbStaticMenus) > 0 and array_key_exists($menuObj->code, $dbStaticMenus->toArray())): ?>
+                            <span class="list-badge badge-success">
+                                <i class="icon-info"></i>
+                            </span>
+                            <?= Lang::get('rd.dynopages::lang.migrations.menu_exists') ?>
+                        <?php else: ?>
+                            <div id="migrateMenuStatus<?= $k ?>">
+                                <a href=""
+                                    role="button"
+                                    class="btn btn-primary btn-sm"
+                                    data-request="onPerformStaticMenuMigrate"
+                                    data-load-indicator="<?= e(trans('backend::lang.form.saving')) ?>"
+                                    data-request-data="recordId: <?= $k ?>, menuCode: '<?= $menuObj->code ?>'"
+                                    data-request-flash>
+                                    <?= Lang::get('rd.dynopages::lang.migrations.migrate') ?>
+                                </a>
+                            </div>
+                        <?php endif ?>
+                        
+                    </td>
+                </tr>
+                <?php $k++; ?>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+</div>
