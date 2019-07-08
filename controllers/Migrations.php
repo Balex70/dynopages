@@ -52,17 +52,24 @@ class Migrations extends Controller
         $this->vars['defaultLocale'] = $this->getDefaultLang();
 
         // Get CMS pages data
-        $this->vars['pages'] = Page::listInTheme($this->theme, true);
-        $this->vars['dbPages'] = $this->getDBPages();
+        $pages = Page::listInTheme($this->theme, true) !== null ? Page::listInTheme($this->theme, true) : [];
+        $dbPages = $this->getDBPages() !== null ? $this->getDBPages() : [];
+        $this->vars['pages'] = $pages;
+        $this->vars['dbPages'] = $dbPages;
 
         if(PluginManager::instance()->exists('RainLab.Pages')){
             // Get Static pages data
             $pageList = new PageList($this->theme);
-            $this->vars['staticPages'] = \RainLab\Pages\Classes\Page::listInTheme($this->theme, true);
-            $this->vars['staticPagesTree'] = $pageList->getPageTree(true);
-            $this->vars['dbStaticPages'] = StaticPage::listDbInTheme($this->theme);
+            $staticPages = \RainLab\Pages\Classes\Page::listInTheme($this->theme, true) !== null ? \RainLab\Pages\Classes\Page::listInTheme($this->theme, true) : [];
+            $staticPagesTree = $pageList->getPageTree(true) !== null ? $pageList->getPageTree(true) : [];
+            $dbStaticPages = StaticPage::listDbInTheme($this->theme) !== null ? StaticPage::listDbInTheme($this->theme) : [];
+            $this->vars['staticPages'] = $staticPages;
+            $this->vars['staticPagesTree'] = $staticPagesTree;
+            $this->vars['dbStaticPages'] = $dbStaticPages;
 
             // Get Static menus data
+            $staticMenus = \RainLab\Pages\Classes\Menu::listInTheme($this->theme, true) !== null ? \RainLab\Pages\Classes\Menu::listInTheme($this->theme, true) : [];
+            $dbStaticMenus = Menu::listDbInTheme($this->theme) !== null ? Menu::listDbInTheme($this->theme) : [];
             $this->vars['staticMenus'] = \RainLab\Pages\Classes\Menu::listInTheme($this->theme, true);
             $this->vars['dbStaticMenus'] = Menu::listDbInTheme($this->theme);
 
@@ -96,7 +103,7 @@ class Migrations extends Controller
     {
         $errors = false;
         $migrationStatus = [];
-        $dbPages = $this->getDBPages();
+        $dbPages = $this->getDBPages() !== null ? $this->getDBPages() : [];
         $count = 0;
         foreach (Page::listInTheme($this->theme, true) as $pageKey => $pageItem) {
             if (count($dbPages) > 0 and array_key_exists($pageItem->fileName, $dbPages)){
@@ -209,7 +216,7 @@ class Migrations extends Controller
         $settings["is_hidden"] = $page->is_hidden;
 
         // Fill settings array with components
-        if(count($page->settings['components']) > 0){
+        if($page->settings['components'] !== null && count($page->settings['components']) > 0){
             foreach ($page->settings['components'] as $componentKey => $component) {
                 $settings[$componentKey] = $component;
             }
@@ -273,7 +280,7 @@ class Migrations extends Controller
     public function onPerformStaticPageMigrate()
     {
         $errors = false;
-        if(count(StaticPage::listDbInTheme($this->theme)) > 0){
+        if(StaticPage::listDbInTheme($this->theme) !== null && count(StaticPage::listDbInTheme($this->theme)) > 0){
             $errors = true;
             Flash::error(Lang::get('rd.dynopages::lang.migrations.db_static_pages_exists'));
         }
