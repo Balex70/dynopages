@@ -426,7 +426,7 @@ class Page extends \Cms\Classes\Page
             'localeMeta_description' => 'meta_description'
         ];
 
-        if(count(post('RLTranslate')) > 0){
+        if(post('RLTranslate') !== null && count(post('RLTranslate')) > 0){
             foreach ($fieldsToFill as $key => $field) {
                 foreach (post('RLTranslate') as $locale => $value) {
                     array_set($settings, 'viewBag.'.$key.'.'.$locale, array_get($value, 'settings.'.$field));
