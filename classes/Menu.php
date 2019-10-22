@@ -162,11 +162,12 @@ class Menu extends \RainLab\Pages\Classes\Menu
 
         if($defaultRecord){
             // Perform update existing menu item
-            $this->beforeSave();
+            // $this->beforeSave();
+            $this->content = $this->renderContent();
             
             // Get correct attributes
             $attributes = $this->getAttributes();
-            
+
             $attributes = [
                 'code' => $attributes['code'],
                 'fileName' => $attributes['code'],
@@ -178,7 +179,8 @@ class Menu extends \RainLab\Pages\Classes\Menu
             
         }else{
             // Perform add new item
-            $this->beforeSave();
+            // $this->beforeSave();
+            $this->content = $this->renderContent();
 
             // Get correct attributes
             $attributes = $this->getAttributes();

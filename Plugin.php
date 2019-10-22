@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\App;
 use Rd\DynoPages\Classes\Controller;
 use System\Helpers\View as ViewHelper;
 use October\Rain\Parse\Bracket as TextParser;
+use Rd\DynoPages\Classes\Page as DynoCmsPage;
+use Rd\DynoPages\Classes\StaticPage as DynoStaticPage;
 
 /**
  * DynoPages Plugin Class
@@ -201,6 +203,76 @@ class Plugin extends PluginBase
             }else{
                 $manager->removeMainMenuItem('Rd.Dynopages', 'cms');
                 $manager->removeMainMenuItem('Rd.Dynopages', 'pages');
+            }
+        });
+
+        /*
+         * Register menu items for the Dyno static pages
+         */
+        Event::listen('pages.menuitem.listTypes', function() {
+            return [
+                'dyno-static-page'      => 'rd.dynopages::lang.menuitem.static_page',
+                'all-dyno-static-pages' => 'rd.dynopages::lang.menuitem.all_static_pages'
+            ];
+        });
+
+        Event::listen('pages.menuitem.getTypeInfo', function($type) {
+            if ($type == 'url') {
+                return [];
+            }
+
+            if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
+                return DynoStaticPage::getMenuTypeInfo($type);
+            }
+        });
+        Event::listen('pages.menuitem.resolveItem', function($type, $item, $url, $theme) {
+            if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
+                return DynoStaticPage::resolveMenuItem($item, $url, $theme);
+            }
+        });
+
+        Event::listen('backend.richeditor.listTypes', function () {
+            return [
+                'dyno-static-page' => 'rd.dynopages::lang.menuitem.static_page',
+            ];
+        });
+
+        Event::listen('backend.richeditor.getTypeInfo', function ($type) {
+            if ($type === 'dyno-static-page') {
+                return DynoStaticPage::getRichEditorTypeInfo($type);
+            }
+        });
+
+        /*
+         * Register menu items for the Dyno Cms pages
+         */
+        Event::listen('pages.menuitem.listTypes', function () {
+            return [
+                'dyno-cms-page' => 'rd.dynopages::lang.menuitem.cms_page'
+            ];
+        });
+
+        Event::listen('pages.menuitem.getTypeInfo', function ($type) {
+            if ($type === 'dyno-cms-page') {
+                return DynoCmsPage::getMenuTypeInfo($type);
+            }
+        });
+
+        Event::listen('pages.menuitem.resolveItem', function ($type, $item, $url, $theme) {
+            if ($type === 'dyno-cms-page') {
+                return DynoCmsPage::resolveMenuItem($item, $url, $theme);
+            }
+        });
+
+        Event::listen('backend.richeditor.listTypes', function () {
+            return [
+                'dyno-cms-page' => 'cms::lang.page.cms_page'
+            ];
+        });
+
+        Event::listen('backend.richeditor.getTypeInfo', function ($type) {
+            if ($type === 'dyno-cms-page') {
+                return DynoCmsPage::getRichEditorTypeInfo($type);
             }
         });
     }
