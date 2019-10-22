@@ -109,5 +109,10 @@ return [
         'menu_exists' => 'Menu with this code already exists!',
         'static_menu_hint' => 'Here you can migrate static menus to DB.',
         'static_menu_warning' => 'If static menu with identical code already exists, migration of this menu item is not possible!'
+    ],
+    'menuitem' => [
+        'cms_page' => 'Dyno CMS page',
+        'static_page' => 'Dyno static page',
+        'all_static_pages' => 'All Dyno static pages'
     ]
 ];

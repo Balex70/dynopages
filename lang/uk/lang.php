@@ -109,5 +109,10 @@ return [
         'menu_exists' => 'Таке меню вже існує',
         'static_menu_hint' => 'Тут ви можете мігрувати статичні меню в базу даних.',
         'static_menu_warning' => 'Якщо статичне меню з ідентичним кодом вже існує, міграція цього меню буде не можливою!'
+    ],
+    'menuitem' => [
+        'cms_page' => 'CMS сторінка (Dynopages)',
+        'static_page' => 'Статична сторінка (Dynopages)',
+        'all_static_pages' => 'Всі статичні сторінки (Dynopages)'
     ]
 ];

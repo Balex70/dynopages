@@ -1,7 +1,14 @@
 <?php namespace Rd\DynoPages\Classes;
 
+use Cms;
 use Lang;
+use Cache;
+use Event;
+use Config;
+use Cms\Classes\Theme;
 use ValidationException;
+use October\Rain\Support\Str;
+use October\Rain\Router\Helper as RouterHelper;
 use System\Classes\PluginManager;
 use Rd\DynoPages\Classes\PageList;
 use Rd\DynoPages\Services\DBService;
@@ -15,6 +22,8 @@ use RainLab\Translate\Classes\Translator;
  */
 class StaticPage extends \RainLab\Pages\Classes\Page
 {
+    protected static $dynoMenuTreeCache = null;
+
     private static $defaultRecord = null;
 
     protected static $defaultLang = 'en';
@@ -769,5 +778,269 @@ class StaticPage extends \RainLab\Pages\Classes\Page
         }
 
         return $result;
+    }
+
+    //
+    // Static Menu API
+    //
+
+        /**
+     * Returns a cache key for this record.
+     */
+    protected static function getMenuCacheKey($theme)
+    {
+        $key = crc32($theme->getPath()).'dyno-static-page-menu';
+        Event::fire('pages.page.getMenuCacheKey', [&$key]);
+        return $key;
+    }
+
+    /**
+     * Returns whether the specified URLs are equal.
+     */
+    protected static function urlsAreEqual($url, $other)
+    {
+        return rawurldecode($url) === rawurldecode($other);
+    }
+
+    /**
+     * Handler for the pages.menuitem.getTypeInfo event.
+     * Returns a menu item type information. The type information is returned as array
+     * with the following elements:
+     * - references - a list of the item type reference options. The options are returned in the
+     *   ["key"] => "title" format for options that don't have sub-options, and in the format
+     *   ["key"] => ["title"=>"Option title", "items"=>[...]] for options that have sub-options. Optional,
+     *   required only if the menu item type requires references.
+     * - nesting - Boolean value indicating whether the item type supports nested items. Optional,
+     *   false if omitted.
+     * - dynamicItems - Boolean value indicating whether the item type could generate new menu items.
+     *   Optional, false if omitted.
+     * - cmsPages - a list of CMS pages (objects of the Cms\Classes\Page class), if the item type requires a CMS page reference to
+     *   resolve the item URL.
+     * @param string $type Specifies the menu item type
+     * @return array Returns an array
+     */
+    public static function getMenuTypeInfo($type)
+    {
+        if ($type == 'all-dyno-static-pages') {
+            return [
+                'dynamicItems' => true
+            ];
+        }
+
+        if ($type == 'dyno-static-page') {
+            return [
+                'references'   => self::listStaticPageMenuOptions(),
+                'nesting'      => true,
+                'dynamicItems' => true
+            ];
+        }
+    }
+
+    /**
+     * Handler for the pages.menuitem.resolveItem event.
+     * Returns information about a menu item. The result is an array
+     * with the following keys:
+     * - url - the menu item URL. Not required for menu item types that return all available records.
+     *   The URL should be returned relative to the website root and include the subdirectory, if any.
+     *   Use the Cms::url() helper to generate the URLs.
+     * - isActive - determines whether the menu item is active. Not required for menu item types that
+     *   return all available records.
+     * - items - an array of arrays with the same keys (url, isActive, items) + the title key.
+     *   The items array should be added only if the $item's $nesting property value is TRUE.
+     * @param \RainLab\Pages\Classes\MenuItem $item Specifies the menu item.
+     * @param \Cms\Classes\Theme $theme Specifies the current theme.
+     * @param string $url Specifies the current page URL, normalized, in lower case
+     * The URL is specified relative to the website root, it includes the subdirectory name, if any.
+     * @return mixed Returns an array. Returns null if the item cannot be resolved.
+     */
+    public static function resolveMenuItem($item, $url, $theme)
+    {
+        $tree = self::buildMenuTree($theme);
+
+        if ($item->type == 'dyno-static-page' && !isset($tree[$item->reference])) {
+            return;
+        }
+
+        $result = [];
+        
+        if ($item->type == 'dyno-static-page') {
+            $pageInfo = $tree[$item->reference];
+            $result['url'] = Cms::url($pageInfo['url']);
+            $result['mtime'] = $pageInfo['mtime'];
+            $result['isActive'] = self::urlsAreEqual($result['url'], $url);
+        }
+
+        if ($item->nesting || $item->type == 'all-dyno-static-pages') {
+            $iterator = function($items) use (&$iterator, &$tree, $url) {
+                $branch = [];
+
+                foreach ($items as $itemName) {
+                    if (!isset($tree[$itemName])) {
+                        continue;
+                    }
+
+                    $itemInfo = $tree[$itemName];
+
+                    if ($itemInfo['navigation_hidden']) {
+                        continue;
+                    }
+                    
+                    $branchItem = [];
+                    $branchItem['url'] = Cms::url($itemInfo['url']);
+                    $branchItem['isActive'] = self::urlsAreEqual($branchItem['url'], $url);
+                    $branchItem['title'] = $itemInfo['title'];
+                    $branchItem['mtime'] = $itemInfo['mtime'];
+
+                    if ($itemInfo['items']) {
+                        $branchItem['items'] = $iterator($itemInfo['items']);
+                    }
+
+                    $branch[] = $branchItem;
+                }
+
+                return $branch;
+            };
+
+            $result['items'] = $iterator($item->type == 'dyno-static-page' ? $pageInfo['items'] : $tree['--root-pages--']);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Handler for the backend.richeditor.getTypeInfo event.
+     * Returns a menu item type information. The type information is returned as array
+     * @param string $type Specifies the page link type
+     * @return array
+     */
+    public static function getRichEditorTypeInfo($type)
+    {
+        if ($type == 'dyno-static-page') {
+
+            $pages = self::listStaticPageMenuOptions();
+
+            $iterator = function($pages) use (&$iterator) {
+                $result = [];
+                foreach ($pages as $pageFile => $page) {
+                    $url = self::url($pageFile);
+
+                    if (is_array($page)) {
+                        $result[$url] = [
+                            'title' => array_get($page, 'title', []),
+                            'links' => $iterator(array_get($page, 'items', []))
+                        ];
+                    }
+                    else {
+                        $result[$url] = $page;
+                    }
+                }
+
+                return $result;
+            };
+
+            return $iterator($pages);
+        }
+
+        return [];
+    }
+
+    /**
+     * Builds and caches a menu item tree.
+     * This method is used internally for menu items and breadcrumbs.
+     * @param \Cms\Classes\Theme $theme Specifies the current theme.
+     * @return array Returns an array containing the page information
+     */
+    public static function buildMenuTree($theme)
+    {
+        if (self::$dynoMenuTreeCache !== null) {
+            return self::$dynoMenuTreeCache;
+        }
+
+        $key = self::getMenuCacheKey($theme);
+        
+        
+        $cached = Cache::get($key, false);
+        $unserialized = $cached ? @unserialize($cached) : false;
+
+        if ($unserialized !== false) {
+            return self::$dynoMenuTreeCache = $unserialized;
+        }
+
+        $menuTree = [
+            '--root-pages--' => []
+        ];
+
+        $iterator = function($items, $parent, $level) use (&$menuTree, &$iterator) {
+            $result = [];
+
+            foreach ($items as $item) {
+                $viewBag = $item->page->viewBag;
+                $pageCode = $item->page->getBaseFileName();
+                $pageUrl = Str::lower(RouterHelper::normalizeUrl(array_get($viewBag, 'url')));
+
+                $itemData = [
+                    'url'    => $pageUrl,
+                    'title'  => array_get($viewBag, 'title'),
+                    'mtime'  => $item->page->mtime,
+                    'items'  => $iterator($item->subpages, $pageCode, $level+1),
+                    'parent' => $parent,
+                    'navigation_hidden' => array_get($viewBag, 'navigation_hidden')
+                ];
+
+                if ($level == 0) {
+                    $menuTree['--root-pages--'][] = $pageCode;
+                }
+
+                $result[] = $pageCode;
+                $menuTree[$pageCode] = $itemData;
+            }
+
+            return $result;
+        };
+
+        $pageList = new PageList($theme);
+        $iterator($pageList->getStaticPageTree(), null, 0);
+
+        self::$dynoMenuTreeCache = $menuTree;
+        $expiresAt = now()->addMinutes(Config::get('cms.parsedPageCacheTTL', 10));
+        Cache::put($key, serialize($menuTree), $expiresAt);
+        
+        return self::$dynoMenuTreeCache;
+    }
+
+    /**
+     * Returns a list of options for the Reference drop-down menu in the
+     * menu item configuration form, when the Static Page item type is selected.
+     * @return array Returns an array
+     */
+    protected static function listStaticPageMenuOptions()
+    {
+        $theme = Theme::getEditTheme();
+
+        $pageList = new PageList($theme);
+        $pageTree = $pageList->getStaticPageTree(true);
+        
+        $iterator = function($pages) use (&$iterator) {
+            $result = [];
+
+            foreach ($pages as $pageInfo) {
+                $pageName = $pageInfo->page->getViewBag()->property('title');
+                $fileName = $pageInfo->page->getBaseFileName();
+
+                if (!$pageInfo->subpages) {
+                    $result[$fileName] = $pageName;
+                }
+                else {
+                    $result[$fileName] = [
+                        'title' => $pageName,
+                        'items' => $iterator($pageInfo->subpages)
+                    ];
+                }
+            }
+
+            return $result;
+        };
+
+        return $iterator($pageTree);
     }
 }
