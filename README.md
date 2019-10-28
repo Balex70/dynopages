@@ -23,7 +23,7 @@ You can find our plugin on OctoberCMS marketplace: https://octobercms.com/plugin
 * Install and enable plugin.
 * Additional menu items will be available: Dyno CMS and Dyno Pages (if you are using RainLab.Pages for static content).
 * Use OctoberCMS in same way as with native CMS or Static Pages plugin.
-* For static menu we have created our own 'Static Menu' component. It extends RainLab.Pages 'Static Menu' component and allows to use static menus stored in database.
+* For static menu we have created our own 'Static Menu' component. It extends RainLab.Pages 'Static Menu' component and allows to use static menus stored in database. We also added the possibility to use the actual page localized title on the menu ([see usage example](#static-menu-usage-example)). In order to use component correctly please use correct item type in BE for menu generation.
 
 ##### Configuration:
 ```
@@ -47,7 +47,57 @@ Settings > Dynopages: migrations
 * Migrate existing Static menus to database. You can migrate separate menu items to database only. If menu item with same code exists, migration will not be possible for this menu item!
 
 ##### Components:
-Plugin contains 'Static Menu' component. Use it for your site in order to get static menus saved in database.
+Plugin contains 'Static Menu' component. Use it for your site in order to get static menus saved in database. See the example below, with localized pages titles (item.pageTitle).
+
+# Static menu usage example:
+```
+{% for item in staticMenu.menuItems if not item.viewBag.isHidden %}
+   <li class="nav-item {{ item.items ? 'dropdown' : '' }}">
+    {% if item.url %}
+    {% set attributes = item.items ? 'role=button data-toggle=dropdown aria-haspopup=true aria-expanded=false' %}
+    <a 
+        class="nav-link {{ this.page.url==item.url ? 'active' : '' }} {{ item.viewBag.cssClass }} {{ item.items ? 'dropdown-toggle' : '' }}"
+           href="{{item.url}}"
+           {{ item.viewBag.isExternal ? 'target="_blank"' }}
+           >
+           {% if item.code %}
+               <span>{{ ('nav.'~item.code)|_  }}</span>
+           {% elseif item.pageTitle %}
+               <span>{{ item.pageTitle }}</span>
+           {% else %}
+               <span>{{ item.title }}</span>
+           {% endif %}
+
+           {% if item.items %}
+               <span class="icons icon-arrow-down"></span>
+           {% endif %}
+       </a>
+       {% else %}
+           <span>{{ item.title }}</span>
+       {% endif %}
+
+       {% if item.items %}
+           <div class="dropdown-menu">
+               {% for dropdownItem in item.items %}
+                   {% if dropdownItem.code %}
+                       <a 
+                       class="dropdown-item" 
+                       href="{{ dropdownItem.url }}">{{ ('nav.'~dropdownItem.code)|_  }}</a>
+                   {% elseif dropdownItem.pageTitle %}
+                       <a 
+                       class="dropdown-item" 
+                       href="{{ dropdownItem.url }}">{{ dropdownItem.pageTitle }}</a>
+                   {% else %}
+                       <a 
+                       class="dropdown-item" 
+                       href="{{ dropdownItem.url }}">{{ dropdownItem.title }}</a>
+                   {% endif %}
+               {% endfor %}
+           </div>
+       {% endif %}
+   </li>
+{% endfor %}
+```
 
 ## Plugin under development!!!
 This plugin is still in development, so make sure to test it on dev/stage before going live. Please open new issue on our plugin’s GitHub issues page or contact us before adding negative comment about this plugin. We are trying our best to improve this plugin.
