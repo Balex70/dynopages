@@ -56,7 +56,7 @@ Plugin contains 'Static Menu' component. Use it for your site in order to get st
     {% if item.url %}
     {% set attributes = item.items ? 'role=button data-toggle=dropdown aria-haspopup=true aria-expanded=false' %}
     <a 
-        class="nav-link {{ this.page.url==item.url ? 'active' : '' }} {{ item.viewBag.cssClass }} {{ item.items ? 'dropdown-toggle' : '' }}"
+        class="nav-link {{ item.isActive ? 'active' : '' }} {{ item.viewBag.cssClass }} {{ item.items ? 'dropdown-toggle' : '' }}"
            href="{{item.url}}"
            {{ item.viewBag.isExternal ? 'target="_blank"' }}
            >
