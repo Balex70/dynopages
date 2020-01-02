@@ -4,12 +4,14 @@ use Event;
 use Config;
 use Backend;
 use Session;
+use Cms\Classes\Theme;
 use Cms\Classes\CmsException;
 use System\Classes\PluginBase;
 use Rd\DynoPages\Classes\Router;
 use Rd\Dynopages\Models\Setting;
 use System\Classes\PluginManager;
 use RainLab\Pages\Classes\Snippet;
+use RainLab\Pages\Classes\SnippetManager;
 use Illuminate\Support\Facades\App;
 use Rd\DynoPages\Classes\Controller;
 use System\Helpers\View as ViewHelper;
@@ -226,8 +228,10 @@ class Plugin extends PluginBase
             }
         });
         Event::listen('pages.menuitem.resolveItem', function($type, $item, $url, $theme) {
-            if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
-                return DynoStaticPage::resolveMenuItem($item, $url, $theme);
+            if(Setting::get('use_dynopages')){
+                if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
+                    return DynoStaticPage::resolveMenuItem($item, $url, $theme);
+                }
             }
         });
 
@@ -261,6 +265,12 @@ class Plugin extends PluginBase
         Event::listen('pages.menuitem.resolveItem', function ($type, $item, $url, $theme) {
             if ($type === 'dyno-cms-page') {
                 return DynoCmsPage::resolveMenuItem($item, $url, $theme);
+            }
+        });
+
+        Event::listen('cms.template.save', function($controller, $template, $type) {
+            if(Setting::get('use_dynopages')){
+                Plugin::clearCache();
             }
         });
 
@@ -501,4 +511,14 @@ class Plugin extends PluginBase
         ];
     }
 
+    public static function clearCache()
+    {
+        $theme = Theme::getEditTheme();
+
+        $router = new Router($theme);
+        $router->clearCache();
+
+        DynoStaticPage::clearMenuCache($theme);
+        SnippetManager::clearCache($theme);
+    }
 }
