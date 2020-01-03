@@ -4,12 +4,14 @@ use Event;
 use Config;
 use Backend;
 use Session;
+use Cms\Classes\Theme;
 use Cms\Classes\CmsException;
 use System\Classes\PluginBase;
 use Rd\DynoPages\Classes\Router;
 use Rd\Dynopages\Models\Setting;
 use System\Classes\PluginManager;
 use RainLab\Pages\Classes\Snippet;
+use RainLab\Pages\Classes\SnippetManager;
 use Illuminate\Support\Facades\App;
 use Rd\DynoPages\Classes\Controller;
 use System\Helpers\View as ViewHelper;
@@ -226,8 +228,10 @@ class Plugin extends PluginBase
             }
         });
         Event::listen('pages.menuitem.resolveItem', function($type, $item, $url, $theme) {
-            if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
-                return DynoStaticPage::resolveMenuItem($item, $url, $theme);
+            if(Setting::get('use_dynopages')){
+                if ($type == 'dyno-static-page' || $type == 'all-dyno-static-pages') {
+                    return DynoStaticPage::resolveMenuItem($item, $url, $theme);
+                }
             }
         });
 
@@ -264,6 +268,12 @@ class Plugin extends PluginBase
             }
         });
 
+        Event::listen('cms.template.save', function($controller, $template, $type) {
+            if(Setting::get('use_dynopages')){
+                Plugin::clearCache();
+            }
+        });
+
         Event::listen('backend.richeditor.listTypes', function () {
             return [
                 'dyno-cms-page' => 'cms::lang.page.cms_page'
@@ -275,6 +285,13 @@ class Plugin extends PluginBase
                 return DynoCmsPage::getRichEditorTypeInfo($type);
             }
         });
+
+        // BUGFIX LANG
+        Event::listen('pages.page.getMenuCacheKey', function (&$key) {
+            // Fix wrong locale from Lang::getLocale() method
+            $key = $key . '-' . \RainLab\Translate\Classes\Translator::instance()->getLocale();
+            return false;
+        }, 10);
     }
 
     /**
@@ -501,4 +518,14 @@ class Plugin extends PluginBase
         ];
     }
 
+    public static function clearCache()
+    {
+        $theme = Theme::getEditTheme();
+
+        $router = new Router($theme);
+        $router->clearCache();
+
+        DynoStaticPage::clearMenuCache($theme);
+        SnippetManager::clearCache($theme);
+    }
 }

@@ -188,6 +188,7 @@ class CmsIndex extends \Cms\Controllers\Index
             $template->dbSave();
         }
 
+        $this->fireSystemEvent('cms.template.save', [$template, $type]);
         Flash::success(Lang::get('cms::lang.template.saved'));
 
         $result = [
