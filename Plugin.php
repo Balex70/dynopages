@@ -285,6 +285,13 @@ class Plugin extends PluginBase
                 return DynoCmsPage::getRichEditorTypeInfo($type);
             }
         });
+
+        // BUGFIX LANG
+        Event::listen('pages.page.getMenuCacheKey', function (&$key) {
+            // Fix wrong locale from Lang::getLocale() method
+            $key = $key . '-' . \RainLab\Translate\Classes\Translator::instance()->getLocale();
+            return false;
+        }, 10);
     }
 
     /**
