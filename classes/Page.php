@@ -488,6 +488,15 @@ class Page extends \Cms\Classes\Page
         // Override static::inTheme($theme) method
         $instance = static::on($theme->getDirName());
 
+        // Get default locale and available locales for static methods
+        if(PluginManager::instance()->exists('RainLab.Translate')){
+            $defaultLocale = \RainLab\Translate\Models\Locale::getDefault();
+            self::$defaultLang = $defaultLocale->code ? $defaultLocale->code : 'en';
+            self::$listAvailableLocales = \RainLab\Translate\Models\Locale::listAvailable();
+        }else{
+            self::$defaultLang = config('app.locale') ? config('app.locale') : config('app.fallback_locale');
+        }
+
         // Get pages (array of fileNames) listed in theme
         $items = DBService::listPages(self::TABLE, $theme, self::$defaultLang);
         $loadedItems = [];
