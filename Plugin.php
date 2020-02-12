@@ -72,6 +72,7 @@ class Plugin extends PluginBase
         Event::listen('cms.router.beforeRoute', function($url) {
             // We should try to load cmsPage form DB, if not exist loadStaticPage from DB
             $dynoController = new Controller();
+            
             if(Setting::get('use_dynopages')){
                 if(PluginManager::instance()->exists('RainLab.Pages') && $page = $dynoController->initStaticCmsPageFromDB($url)){
                     $this->pageType = 'staticPage';
@@ -80,11 +81,10 @@ class Plugin extends PluginBase
                     $this->pageType = 'page';
                     $this->url = $url;
                     return $page;
-                }else{
-                    return false;
                 }
+                return false;
             }
-        });
+        }, 100);
 
         Event::listen('cms.page.beforeRenderPage', function($controller, $page) {
 
