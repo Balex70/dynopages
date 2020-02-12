@@ -72,6 +72,7 @@ class Plugin extends PluginBase
         Event::listen('cms.router.beforeRoute', function($url) {
             // We should try to load cmsPage form DB, if not exist loadStaticPage from DB
             $dynoController = new Controller();
+            
             if(Setting::get('use_dynopages')){
                 if(PluginManager::instance()->exists('RainLab.Pages') && $page = $dynoController->initStaticCmsPageFromDB($url)){
                     $this->pageType = 'staticPage';
@@ -80,11 +81,10 @@ class Plugin extends PluginBase
                     $this->pageType = 'page';
                     $this->url = $url;
                     return $page;
-                }else{
-                    return false;
                 }
+                return false;
             }
-        });
+        }, 100);
 
         Event::listen('cms.page.beforeRenderPage', function($controller, $page) {
 
@@ -180,7 +180,7 @@ class Plugin extends PluginBase
                 return false;
             }
             
-        });
+        }, 100);
 
         Event::listen('cms.page.initComponents', function ($controller, $page, $layout) {
             // Get correct vars[this] for controller
@@ -189,7 +189,7 @@ class Plugin extends PluginBase
                 $router->findDynoPageByUrl($this->url);
                 $controller->getRouter()->setParameters($router->getParameters());
             }
-        });
+        }, 100);
 
         Event::listen('backend.menu.extendItems', function($manager) {
             if(Setting::get('use_dynopages')){
@@ -206,7 +206,7 @@ class Plugin extends PluginBase
                 $manager->removeMainMenuItem('Rd.Dynopages', 'cms');
                 $manager->removeMainMenuItem('Rd.Dynopages', 'pages');
             }
-        });
+        }, 100);
 
         /*
          * Register menu items for the Dyno static pages
@@ -233,7 +233,7 @@ class Plugin extends PluginBase
                     return DynoStaticPage::resolveMenuItem($item, $url, $theme);
                 }
             }
-        });
+        }, 100);
 
         Event::listen('backend.richeditor.listTypes', function () {
             return [
