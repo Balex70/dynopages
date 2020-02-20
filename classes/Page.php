@@ -218,7 +218,7 @@ class Page extends \Cms\Classes\Page
             foreach ($locales as $key => $value) {
                 if($key === $this->getDefaultLang()){
                     // Get correct attributes for default language
-                    $dataToUpdate[$key]['url'] = post('settings')['url'];
+                    $dataToUpdate[$key]['url'] = post('RLTranslate')[$key]['settings']['url'];
                     $dataToUpdate[$key]['attributes'] = $defaultAttributes;
                     $settings = $this->getAttribute('settings');
                     $dataToUpdate[$key]['settings'] = $this->fillViewBagFromRLTranslate($settings);
@@ -310,11 +310,14 @@ class Page extends \Cms\Classes\Page
         }
         else{
             // Check if record with same url (exclude records with same names) not exist otherwise throw an error
-            if(DBService::getDuplicateRecordByUrl(self::TABLE, self::$theme, null, $url, $lang)){
-                throw new ValidationException([
-                    'fileName' => Lang::get('rd.dynopages::lang.url_not_unique', ['url' => $url, 'lang' => $lang])
-                ]);
+            if($url){
+                if($recordFound = DBService::getDuplicateRecordByUrl(self::TABLE, self::$theme, null, $url, $lang)){
+                    throw new ValidationException([
+                        'fileName' => Lang::get('rd.dynopages::lang.url_not_unique', ['url' => $url, 'lang' => $lang])
+                    ]);
+                }
             }
+            
 
             // Check if fileName field is filled
             if(!$attributes['fileName'] || $attributes['fileName'] == '' || $attributes['fileName'] == "\r\n"){
@@ -361,7 +364,7 @@ class Page extends \Cms\Classes\Page
     {
         // Get record to update by fileName and lang
         $record = DBService::getRecordByFileName(self::TABLE, self::$theme, $defaultRecord->file_name, $lang);
-        
+
         // Check if url for default language is exist and not empty, url for other language can be empty
         if($lang == $this->getDefaultLang() && (!$url || $url == '' || $url == "\r\n")){
             throw new ValidationException([
@@ -371,10 +374,12 @@ class Page extends \Cms\Classes\Page
         else{
             // Check if record with same url (exclude records with same ids) not exist otherwise throw an error
             $duplicateRecordByUrl = DBService::getRecordByUrl(self::TABLE, self::$theme, $url, $lang);
-            if($record && $duplicateRecordByUrl && $record->id != $duplicateRecordByUrl->id){
-                throw new ValidationException([
-                    'fileName' => Lang::get('rd.dynopages::lang.url_not_unique', ['url' => $url, 'lang' => $lang])
-                ]);
+            if($url){
+                if($record && $duplicateRecordByUrl && $record->id != $duplicateRecordByUrl->id){
+                    throw new ValidationException([
+                        'fileName' => Lang::get('rd.dynopages::lang.url_not_unique', ['url' => $url, 'lang' => $lang])
+                    ]);
+                }
             }
 
             // Check if fileName field is filled
