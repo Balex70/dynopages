@@ -188,6 +188,15 @@ class Plugin extends PluginBase
                 $router = new Router($controller->getTheme());
                 $router->findDynoPageByUrl($this->url);
                 $controller->getRouter()->setParameters($router->getParameters());
+                
+                // Reinit page components to ensure parameters are set
+                foreach ($page->settings['components'] as $component => $properties) {
+                    list($name, $alias) = strpos($component, ' ')
+                        ? explode(' ', $component)
+                        : [$component, $component];
+        
+                        $controller->addComponent($name, $alias, $properties);
+                }
             }
         }, 100);
 
