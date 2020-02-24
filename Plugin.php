@@ -1,5 +1,6 @@
 <?php namespace Rd\DynoPages;
 
+use Cms;
 use Event;
 use Config;
 use Backend;
@@ -8,6 +9,7 @@ use Cms\Classes\Theme;
 use Cms\Classes\CmsException;
 use System\Classes\PluginBase;
 use Rd\DynoPages\Classes\Router;
+use October\Rain\Router\Router as RainRouter;
 use Rd\Dynopages\Models\Setting;
 use System\Classes\PluginManager;
 use RainLab\Pages\Classes\Snippet;
@@ -310,11 +312,18 @@ class Plugin extends PluginBase
      */
     public function registerComponents()
     {
+        // Components arrays
+        $result = [];
+
         if(PluginManager::instance()->exists('RainLab.Pages')){
-            return [
-                'Rd\DynoPages\Components\StaticMenu' => 'staticMenu',
-            ];
+            $result['Rd\DynoPages\Components\StaticMenu'] = 'staticMenu';
         }
+
+        if(PluginManager::instance()->exists('RainLab.Builder')){
+            $result['Rd\DynoPages\Components\RecordList'] = 'DynoRecordList';
+        }
+
+        return $result;
     }
 
     /**
@@ -536,5 +545,35 @@ class Plugin extends PluginBase
 
         DynoStaticPage::clearMenuCache($theme);
         SnippetManager::clearCache($theme);
+    }
+
+    public function registerMarkupTags()
+    {
+        return [
+            'filters' => [
+                // Native 'page' filter analog
+                'dynopage' => [$this, 'getDynoPageUrl']
+            ],
+        ];
+    }
+
+    public function getDynoPageUrl($fileName, $parameters)
+    {
+        $lang = \RainLab\Translate\Classes\Translator::instance()->getLocale();
+        $theme = Theme::getEditTheme();
+
+        if (!$page = DynoCmsPage::loadFromDb($theme, $fileName.'.htm')){
+            return null;
+        };
+
+        if (!is_array($parameters)) {
+            $parameters = [];
+        }
+        $router = new RainRouter;
+        if (!$url = $router->urlFromPattern($page->getAttributeTranslated('url', $lang), $parameters)) {
+            return null;
+        }
+        
+        return Cms::url($url);
     }
 }
