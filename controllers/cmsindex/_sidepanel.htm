@@ -4,7 +4,7 @@
 <div class="layout control-scrollpanel" id="cms-side-panel">
     <div class="layout-cell">
         <div class="layout-relative fix-button-container">
-            <?php if ($this->user->hasAccess('cms.manage_pages')): ?>
+            <?php if ($this->user->hasAccess('rd.dynopagescms.manage_pages')): ?>
                 <!-- Pages -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
@@ -15,7 +15,7 @@
                     <?= $this->widget->pageList->render() ?>
                 </form>
             <?php endif ?>
-            <?php if ($this->user->hasAccess('cms.manage_partials')): ?>
+            <?php if ($this->user->hasAccess('rd.dynopagescms.manage_partials')): ?>
                 <!-- Partials -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
@@ -26,7 +26,7 @@
                     <?= $this->widget->partialList->render() ?>
                 </form>
             <?php endif ?>
-            <?php if ($this->user->hasAccess('cms.manage_layouts')): ?>
+            <?php if ($this->user->hasAccess('rd.dynopagescms.manage_layouts')): ?>
                 <!-- Layouts -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
@@ -37,7 +37,7 @@
                     <?= $this->widget->layoutList->render() ?>
                 </form>
             <?php endif ?>
-            <?php if ($this->user->hasAccess('cms.manage_content')): ?>
+            <?php if ($this->user->hasAccess('rd.dynopagescms.manage_content')): ?>
                 <!-- Content -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
@@ -48,7 +48,7 @@
                     <?= $this->widget->contentList->render() ?>
                 </form>
             <?php endif ?>
-            <?php if ($this->user->hasAccess('cms.manage_assets')): ?>
+            <?php if ($this->user->hasAccess('rd.dynopagescms.manage_assets')): ?>
                 <!-- Assets -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
@@ -59,7 +59,7 @@
                     <?= $this->widget->assetList->render() ?>
                 </form>
             <?php endif ?>
-            <?php if ($this->user->hasAccess(['cms.manage_pages', 'cms.manage_layouts', 'cms.manage_partials'])): ?>
+            <?php if ($this->user->hasAccess(['rd.dynopagescms.manage_pages', 'rd.dynopagescms.manage_layouts', 'rd.dynopagescms.manage_partials'])): ?>
                 <!-- Components -->
                 <form
                     class="layout <?= ++$visibleCount == 1 ? '' : 'hide' ?>"
