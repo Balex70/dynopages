@@ -434,7 +434,7 @@ class StaticPage extends \RainLab\Pages\Classes\Page
                     // Get correct attributes for default language
                     $dataToCreate[$key]['url'] = $this->url;
                     $dataToCreate[$key]['attributes'] = $this->getAttributes();
-                    $dataToUpdate[$key]['settings'] = post('RLTranslate')[$key]['viewBag'];
+                    $dataToCreate[$key]['settings'] = post('RLTranslate')[$key]['viewBag'];
                 }else{
                     // Get correct attributes for other languages
                     $attributes = $this->getTranslateAttributes($key);
