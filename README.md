@@ -1,5 +1,5 @@
 # Dynopages plugin
-This plugin adds possibility to use database for storing CMS pages, static pages, and static menus.
+This plugin adds possibility to use database for storing CMS pages, static pages, and static menus. Though we continue to support this project, we strongly recommend using the built-in October CMS feature called "Database Driven Themes". Links to official docs: https://github.com/octobercms/docs/blob/master/cms-themes.md#database-driven-themes, https://github.com/octobercms/docs/blob/master/console-commands.md#theme-sync-command
 
 ## Features:
 * Store CMS pages in database
