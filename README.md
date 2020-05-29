@@ -47,7 +47,7 @@ Settings > Dynopages: migrations
 * Migrate existing Static menus to database. You can migrate separate menu items to database only. If menu item with same code exists, migration will not be possible for this menu item!
 
 ##### Available Components:
- - ___Static Menu___. RainLab's Static Menu analog. Use it for your site in order to get correct static menus. See the example below, with localized pages titles (item.pageTitle).
+ - ___Static Menu___. RainLab's Static Menu analog. Use it for your site in order to get correct static menus. Please use 'isActive' property for checking the correct active page. See the example below, with localized pages titles (item.pageTitle).
  - ___Record List___. RainLab's Record List analog from Builder plugin. Same usage as on native component, but with the ability to choose from correct pages.
 
 # Static menu usage example:
