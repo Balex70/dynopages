@@ -320,18 +320,18 @@ class Menu extends \RainLab\Pages\Classes\Menu
                             if (!$item->replace && isset($itemInfo['url'])) {
                                 $parentReference->url = $itemInfo['url'];
                                 $parentReference->pageTitle = $itemInfo['pageTitle'];
-                                $parentReference->isActive = $itemInfo['isActive'] || $activeMenuItem === $item->code;
+                                $parentReference->isActive = $currentUrl == Str::lower(Url::to($itemInfo['url'])) || $activeMenuItem === $item->code;
                             }
 
                             if (isset($itemInfo['items'])) {
-                                $itemIterator = function($items) use (&$itemIterator, $parentReference) {
+                                $itemIterator = function($items) use (&$itemIterator, $parentReference, $currentUrl) {
                                     $result = [];
 
                                     foreach ($items as $item) {
                                         $reference = new MenuItemReference;
                                         $reference->title = isset($item['title']) ? $item['title'] : '--no title--';
                                         $reference->url = isset($item['url']) ? $item['url'] : '#';
-                                        $reference->isActive = isset($item['isActive']) ? $item['isActive'] : false;
+                                        $reference->isActive = isset($item['url']) ? $currentUrl == Str::lower(Url::to($item['url'])) : false;
                                         $reference->viewBag = isset($item['viewBag']) ? $item['viewBag'] : [];
                                         $reference->code = isset($item['code']) ? $item['code'] : null;
 
