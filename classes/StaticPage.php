@@ -869,7 +869,7 @@ class StaticPage extends \RainLab\Pages\Classes\Page
         
         if ($item->type == 'dyno-static-page') {
             $pageInfo = $tree[$item->reference];
-            $result['url'] = Cms::url($pageInfo['url']);
+            $result['url'] = Cms::url(trim($pageInfo['url']));
             $result['pageTitle'] = $pageInfo['title'];
             $result['mtime'] = $pageInfo['mtime'];
             $result['isActive'] = self::urlsAreEqual($result['url'], $url);

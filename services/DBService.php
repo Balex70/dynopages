@@ -341,7 +341,7 @@ class DBService
                     break;
 
                 default:
-                    if(isset($attributes[$field]) && $attributes[$field] != ''){
+                    if(isset($attributes[$field])){
                         $array[$key] = $attributes[$field];
                     }                    
                     break;

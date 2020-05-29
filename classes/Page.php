@@ -614,6 +614,9 @@ class Page extends \Cms\Classes\Page
             }
 
             $page = self::loadFromDb($theme, $item->reference.'.htm', false);
+            if(!$page){
+                return $result;
+            }
             
             $result = [];
             $result['url'] = $page->url;

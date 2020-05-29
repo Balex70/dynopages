@@ -308,27 +308,30 @@ class Menu extends \RainLab\Pages\Classes\Menu
                      * return the item URL, subitems and determine whether the item is active.
                      */
                     $apiResult = Event::fire('pages.menuitem.resolveItem', [$item->type, $item, $currentUrl, $this->theme]);
+
+                    $emptyApiResult = true;
                     if (is_array($apiResult)) {
                         foreach ($apiResult as $itemInfo) {
                             if (!is_array($itemInfo)) {
                                 continue;
                             }
+                            $emptyApiResult = false;
 
                             if (!$item->replace && isset($itemInfo['url'])) {
                                 $parentReference->url = $itemInfo['url'];
                                 $parentReference->pageTitle = $itemInfo['pageTitle'];
-                                $parentReference->isActive = $itemInfo['isActive'] || $activeMenuItem === $item->code;
+                                $parentReference->isActive = $currentUrl == Str::lower(Url::to($itemInfo['url'])) || $activeMenuItem === $item->code;
                             }
 
                             if (isset($itemInfo['items'])) {
-                                $itemIterator = function($items) use (&$itemIterator, $parentReference) {
+                                $itemIterator = function($items) use (&$itemIterator, $parentReference, $currentUrl) {
                                     $result = [];
 
                                     foreach ($items as $item) {
                                         $reference = new MenuItemReference;
                                         $reference->title = isset($item['title']) ? $item['title'] : '--no title--';
                                         $reference->url = isset($item['url']) ? $item['url'] : '#';
-                                        $reference->isActive = isset($item['isActive']) ? $item['isActive'] : false;
+                                        $reference->isActive = isset($item['url']) ? $currentUrl == Str::lower(Url::to($item['url'])) : false;
                                         $reference->viewBag = isset($item['viewBag']) ? $item['viewBag'] : [];
                                         $reference->code = isset($item['code']) ? $item['code'] : null;
 
@@ -352,8 +355,14 @@ class Menu extends \RainLab\Pages\Classes\Menu
                             }
                         }
                     }
+
+                    // If page doesn't exist in system, remove it from menu
+                    if($emptyApiResult){
+                        continue;
+                    }
                 }
 
+                
                 if ($item->items) {
                     $parentReference->items = $iterator($item->items);
                 }
