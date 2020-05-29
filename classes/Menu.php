@@ -308,11 +308,14 @@ class Menu extends \RainLab\Pages\Classes\Menu
                      * return the item URL, subitems and determine whether the item is active.
                      */
                     $apiResult = Event::fire('pages.menuitem.resolveItem', [$item->type, $item, $currentUrl, $this->theme]);
+
+                    $emptyApiResult = true;
                     if (is_array($apiResult)) {
                         foreach ($apiResult as $itemInfo) {
                             if (!is_array($itemInfo)) {
                                 continue;
                             }
+                            $emptyApiResult = false;
 
                             if (!$item->replace && isset($itemInfo['url'])) {
                                 $parentReference->url = $itemInfo['url'];
@@ -352,8 +355,14 @@ class Menu extends \RainLab\Pages\Classes\Menu
                             }
                         }
                     }
+
+                    // If page doesn't exist in system, remove it from menu
+                    if($emptyApiResult){
+                        continue;
+                    }
                 }
 
+                
                 if ($item->items) {
                     $parentReference->items = $iterator($item->items);
                 }
