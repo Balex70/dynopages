@@ -132,9 +132,16 @@ class StaticIndex extends \RainLab\Pages\Controllers\Index
     {
         $this->validateRequestTheme();
 
-        $type = Request::input('templateType');
+        $type = Request::input('objectType');
 
-        $this->loadTemplate($type, trim(Request::input('objectPath')))->dbDelete();
+        $deletedObjects = $this->loadObject($type, trim(Request::input('objectPath')))->dbDelete();
+
+        $result = [
+            'deletedObjects' => $deletedObjects,
+            'theme' => $this->theme->getDirName()
+        ];
+
+        return $result;
     }
 
     protected function loadObject($type, $path, $ignoreNotFound = false)
