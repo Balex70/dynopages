@@ -336,6 +336,7 @@ class StaticPage extends \RainLab\Pages\Classes\Page
         foreach ($recordsToDelete as $id) {
             DBService::deleteRecord(self::TABLE, $id);
         }
+        Event::fire('dynopages.staticPage.afterDelete', [$this->fileName, $this->layout]);
     }
 
     /**
