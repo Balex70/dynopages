@@ -703,6 +703,15 @@ class StaticPage extends \RainLab\Pages\Classes\Page
         }
 
         $fileName = trim(str_replace('/', '-', $attributes['viewBag']['url']), '-');
+
+        // regex taken from web/modules/cms/classes/Page.php
+        preg_match_all('/[^a-z0-9\/_\-\*\[\]\+\?\|\.\^\\\$]/i', $fileName, $matches, PREG_OFFSET_CAPTURE);
+        // If match found then there are forbidden characters, thus invalid url and file name generated from it for new page
+        if(count($matches[0]) > 0){
+            throw new ValidationException([
+                'fileName' => Lang::get('rainlab.pages::lang.page.invalid_url', ['name'=>$fileName])
+             ]);
+        }
         
         if (strlen($fileName) > 200) {
             $fileName = substr($fileName, 0, 200);
