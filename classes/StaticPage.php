@@ -905,6 +905,7 @@ class StaticPage extends \RainLab\Pages\Classes\Page
                     $branchItem['url'] = Cms::url($itemInfo['url']);
                     // No need to use pageTitle, as by default it uses title of page for all-static-pages (in our case all-dyno-static-page)
                     $branchItem['isActive'] = self::urlsAreEqual($branchItem['url'], $url);
+
                     $branchItem['title'] = $itemInfo['title'];
                     $branchItem['mtime'] = $itemInfo['mtime'];
 
@@ -993,8 +994,12 @@ class StaticPage extends \RainLab\Pages\Classes\Page
             foreach ($items as $item) {
                 $viewBag = $item->page->viewBag;
                 $pageCode = $item->page->getBaseFileName();
-                $pageUrl = Str::lower(RouterHelper::normalizeUrl(array_get($viewBag, 'url')));
-
+                if($item->page->hasTranslatablePageUrl()){
+                    $pageUrl = Str::lower(RouterHelper::normalizeUrl(array_get($viewBag, 'url')));
+                }else{
+                    $pageUrl = $item->page->settings['url'];
+                }
+                
                 $itemData = [
                     'url'    => $pageUrl,
                     'title'  => array_get($viewBag, 'title'),
