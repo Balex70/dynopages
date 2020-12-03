@@ -308,7 +308,7 @@ class Menu extends \RainLab\Pages\Classes\Menu
                      * return the item URL, subitems and determine whether the item is active.
                      */
                     $apiResult = Event::fire('pages.menuitem.resolveItem', [$item->type, $item, $currentUrl, $this->theme]);
-
+                    
                     $emptyApiResult = true;
                     if (is_array($apiResult)) {
                         foreach ($apiResult as $itemInfo) {
@@ -319,7 +319,7 @@ class Menu extends \RainLab\Pages\Classes\Menu
 
                             if (!$item->replace && isset($itemInfo['url'])) {
                                 $parentReference->url = $itemInfo['url'];
-                                $parentReference->pageTitle = $itemInfo['pageTitle'];
+                                $parentReference->pageTitle = $item->title != '' ? $item->title : $itemInfo['pageTitle'];
                                 $parentReference->isActive = $currentUrl == Str::lower(Url::to($itemInfo['url'])) || $activeMenuItem === $item->code;
                             }
 
