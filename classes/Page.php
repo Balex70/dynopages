@@ -617,9 +617,9 @@ class Page extends \Cms\Classes\Page
             if(!$page){
                 return $result;
             }
-            
+
             $result = [];
-            $result['url'] = $page->url;
+            $result['url'] = Cms::url($page->url);
             $result['pageTitle'] = $page->title;
             $result['isActive'] = $page->url == $url;
             $result['mtime'] = $page ? $page->mtime : null;
