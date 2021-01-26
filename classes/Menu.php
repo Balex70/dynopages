@@ -7,6 +7,7 @@ use Request;
 use ValidationException;
 use October\Rain\Support\Str;
 use Rd\DynoPages\Services\DBService;
+use RainLab\Translate\Classes\Translator;
 use RainLab\Pages\Classes\MenuItemReference;
 
 /**
@@ -283,9 +284,12 @@ class Menu extends \RainLab\Pages\Classes\Menu
         }
 
         $currentUrl = Str::lower(Url::to($currentUrl));
+
+        $translator = Translator::instance();
+        $translateContext = $translator->getLocale();
         
         $activeMenuItem = $page->activeMenuItem ?: false;
-        $iterator = function($items) use ($currentUrl, &$iterator, $activeMenuItem) {
+        $iterator = function($items) use ($currentUrl, &$iterator, $activeMenuItem, $translateContext) {
             $result = [];
 
             foreach ($items as $item) {
@@ -319,7 +323,14 @@ class Menu extends \RainLab\Pages\Classes\Menu
 
                             if (!$item->replace && isset($itemInfo['url'])) {
                                 $parentReference->url = $itemInfo['url'];
-                                $parentReference->pageTitle = $item->title != '' ? $item->title : $itemInfo['pageTitle'];
+                                if(isset($item->viewBag)){
+                                    if(isset($item->viewBag['locale']) && isset($item->viewBag['locale'][$translateContext])){
+                                        $parentReference->pageTitle = $item->viewBag['locale'][$translateContext]['title'] != '' ? $item->viewBag['locale'][$translateContext]['title'] : $itemInfo['pageTitle'];
+                                    }else{
+                                        $parentReference->pageTitle = $item->title != '' ? $item->title : $itemInfo['pageTitle'];
+                                    }
+                                }  
+                                
                                 $parentReference->isActive = $currentUrl == Str::lower(Url::to($itemInfo['url'])) || $activeMenuItem === $item->code;
                             }
 
