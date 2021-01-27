@@ -877,7 +877,7 @@ class StaticPage extends \RainLab\Pages\Classes\Page
         }
 
         $result = [];
-        
+
         if ($item->type == 'dyno-static-page') {
             $pageInfo = $tree[$item->reference];
             $result['url'] = Cms::url(trim($pageInfo['url']));
@@ -902,7 +902,8 @@ class StaticPage extends \RainLab\Pages\Classes\Page
                     }
                     
                     $branchItem = [];
-                    $branchItem['url'] = Cms::url($itemInfo['url']);
+                    $branchItem['url'] = Cms::url(trim($itemInfo['url']));
+
                     // No need to use pageTitle, as by default it uses title of page for all-static-pages (in our case all-dyno-static-page)
                     $branchItem['isActive'] = self::urlsAreEqual($branchItem['url'], $url);
 
