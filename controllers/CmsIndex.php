@@ -113,7 +113,7 @@ class CmsIndex extends \Cms\Controllers\Index
 
         $widgetConfig = $this->makeConfig($formConfigs[$type]);
         $widgetConfig->model = $template;
-        $widgetConfig->alias = $alias ?: 'form'.studly_case($type).md5($template->getFileName()).uniqid();
+        $widgetConfig->alias = $alias ?: 'form'.studly_case($type).md5($template->exists ? $template->getFileName() : uniqid());
 
         return $this->makeWidget('Backend\Widgets\Form', $widgetConfig);
     }
@@ -145,7 +145,7 @@ class CmsIndex extends \Cms\Controllers\Index
             }
         }
         
-        $settings = $this->upgradeSettings($settings);
+        $settings = $this->upgradeSettings($settings, $template->settings);
 
         if ($settings) {
             $templateData['settings'] = $settings;
