@@ -15,9 +15,9 @@
     "require": {
         "php": ">=7.2.9",
         "composer/installers": "~1.0",
-        "october/system": "1.1.3",
-        "october/backend": "1.1.3",
-        "october/cms": "1.1.3"
+        "october/system": "1.1.5",
+        "october/backend": "1.1.5",
+        "october/cms": "1.1.5"
     },
     "minimum-stability": "dev"
 }
